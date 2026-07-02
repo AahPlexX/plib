@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Intro to Prompting — plib</title>
+<meta name="description" content="A beginner-friendly prompt template introducing the core anatomy of an LLM prompt.">
+<link rel="stylesheet" href="/plib/assets/css/style.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="/plib/">plib</a>
+  <div class="search-wrap">
+    <label for="site-search" class="visually-hidden">Search prompts and skills</label>
+    <input id="site-search" type="search" placeholder="Search prompts &amp; skills…" autocomplete="off">
+    <ul id="search-results" class="search-results" hidden></ul>
+  </div>
+</header>
+
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  <ol id="breadcrumb-list"></ol>
+</nav>
+
+<main id="main-content">
+  <article class="detail-page">
+
+    <header class="detail-header">
+      <p class="detail-type">Prompt</p>
+      <h1 class="detail-title">Intro to Prompting</h1>
+      <p class="detail-desc">A beginner-friendly template that teaches the core anatomy of an effective LLM prompt: role, context, task, constraints, and output format.</p>
+      <div class="detail-meta">
+        <div class="card-tags">
+          <span class="tag">beginner</span>
+          <span class="tag">introduction</span>
+          <span class="tag">llm</span>
+          <span class="tag">basics</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="detail-section">
+      <h2>When to use this prompt</h2>
+      <p>Use this template whenever you need to onboard someone to prompt engineering, demonstrate structured prompting to a new team, or establish a baseline pattern before specialising into chain-of-thought, few-shot, or role-play techniques.</p>
+    </section>
+
+    <section class="detail-section">
+      <h2>Prompt template</h2>
+      <div class="prompt-block-wrap">
+        <button class="copy-btn" aria-label="Copy prompt to clipboard" data-target="prompt-block-1">Copy</button>
+        <pre id="prompt-block-1" class="prompt-block"><code>## Role
+You are [describe the persona or expert role the model should adopt].
+
+## Context
+[Provide the background information the model needs to understand the situation.
+Include relevant facts, constraints, or prior decisions.]
+
+## Task
+[State exactly what you want the model to do. Be specific about scope,
+length, and any required sub-steps.]
+
+## Constraints
+- [Constraint 1 — e.g. respond only in plain text]
+- [Constraint 2 — e.g. do not speculate beyond the provided context]
+- [Constraint 3 — e.g. maximum 300 words]
+
+## Output format
+[Describe the exact shape of the response: bullet list, JSON, numbered steps,
+prose paragraph, markdown table, etc.]</code></pre>
+      </div>
+    </section>
+
+    <section class="detail-section">
+      <h2>Anatomy breakdown</h2>
+      <dl class="anatomy-list">
+        <dt>Role</dt>
+        <dd>Sets the model’s persona. A precise role (e.g. “senior Epic Clarity analyst”) dramatically narrows the vocabulary and reasoning style the model uses.</dd>
+        <dt>Context</dt>
+        <dd>Supplies the working memory the model needs. Anything the model cannot infer from the task alone belongs here.</dd>
+        <dt>Task</dt>
+        <dd>The imperative instruction. One clear verb per task reduces ambiguity and hallucination surface area.</dd>
+        <dt>Constraints</dt>
+        <dd>Negative-space guardrails. Telling the model what <em>not</em> to do is often more reliable than hoping the task description implies it.</dd>
+        <dt>Output format</dt>
+        <dd>Eliminates post-processing. A model that knows the exact shape of the required output produces far fewer off-format responses.</dd>
+      </dl>
+    </section>
+
+    <nav class="detail-nav" aria-label="Directory navigation">
+      <a href="/plib/prompts/" class="detail-nav-link">← Back to Prompts</a>
+    </nav>
+
+  </article>
+</main>
+
+<footer class="site-footer">
+  <p>plib — static library, served via GitHub Pages.</p>
+</footer>
+
+<script src="/plib/assets/js/main.js" defer></script>
+<script>
+(function () {
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var target = document.getElementById(btn.dataset.target);
+      if (!target) return;
+      var text = target.innerText || target.textContent;
+      navigator.clipboard.writeText(text).then(function () {
+        btn.textContent = 'Copied!';
+        btn.disabled = true;
+        setTimeout(function () {
+          btn.textContent = 'Copy';
+          btn.disabled = false;
+        }, 2000);
+      }).catch(function () {
+        btn.textContent = 'Failed';
+        setTimeout(function () { btn.textContent = 'Copy'; }, 2000);
+      });
+    });
+  });
+}());
+</script>
+</body>
+</html>
