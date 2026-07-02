@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page not found — plib</title>
+<link rel="stylesheet" href="/plib/assets/css/style.css">
+<style>
+  .not-found {
+    max-width: 480px;
+    margin: clamp(2rem, 6vw, 4rem) auto;
+    text-align: center;
+  }
+  .not-found-code {
+    font-size: clamp(4rem, 3rem + 5vw, 7rem);
+    font-weight: 800;
+    line-height: 1;
+    color: var(--accent);
+    margin: 0;
+  }
+  .not-found-msg {
+    font-size: clamp(1.1rem, 1rem + 0.5vw, 1.4rem);
+    margin: 0.5rem 0 1.5rem;
+    color: var(--fg);
+  }
+  .not-found-sub {
+    color: #5a5a66;
+    margin-bottom: 2rem;
+  }
+  .not-found-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2rem;
+  }
+  .not-found-links a {
+    display: inline-block;
+    padding: 0.5rem 1.25rem;
+    border: 1px solid var(--accent);
+    border-radius: 0.5rem;
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .not-found-links a:hover,
+  .not-found-links a:focus {
+    background: var(--accent);
+    color: #fff;
+  }
+  .redirect-notice {
+    font-size: 0.85rem;
+    color: #9a9aa2;
+  }
+</style>
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="/plib/">plib</a>
+  <div class="search-wrap">
+    <label for="site-search" class="visually-hidden">Search prompts and skills</label>
+    <input id="site-search" type="search" placeholder="Search prompts &amp; skills…" autocomplete="off">
+    <ul id="search-results" class="search-results" hidden></ul>
+  </div>
+</header>
+
+<main id="main-content">
+  <div class="not-found">
+    <p class="not-found-code" aria-hidden="true">404</p>
+    <p class="not-found-msg">Page not found</p>
+    <p class="not-found-sub">That URL doesn’t exist in this library. Use the links below or search above.</p>
+    <ul class="not-found-links">
+      <li><a href="/plib/">Home</a></li>
+      <li><a href="/plib/prompts/">Prompts</a></li>
+      <li><a href="/plib/.skill/">Skills</a></li>
+    </ul>
+    <p class="redirect-notice" id="redirect-notice">Redirecting to home in <strong id="countdown">8</strong> s…</p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <p>plib — static library, served via GitHub Pages.</p>
+</footer>
+
+<script src="/plib/assets/js/main.js" defer></script>
+<script>
+(function () {
+  var el = document.getElementById('countdown');
+  if (!el) return;
+  var n = 8;
+  var timer = setInterval(function () {
+    n -= 1;
+    el.textContent = n;
+    if (n <= 0) {
+      clearInterval(timer);
+      window.location.replace('/plib/');
+    }
+  }, 1000);
+}());
+</script>
+</body>
+</html>
