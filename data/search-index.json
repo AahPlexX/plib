@@ -12,15 +12,15 @@
     "tags": ["skills", "skill", "directory", "browse"]
   },
   {
-    "title": "Intro to Prompting",
+    "title": "RISEN — Universal Structured Prompt",
     "url": "/plib/prompts/intro-to-prompting.html",
     "type": "prompt",
-    "tags": ["prompt", "beginner", "introduction", "llm", "basics"]
+    "tags": ["RISEN", "zero-shot", "structured", "universal", "role-prompting", "production", "framework", "template"]
   },
   {
-    "title": "Chain-of-Thought",
+    "title": "Chain-of-Thought (CoT)",
     "url": "/plib/.skill/chain-of-thought.html",
     "type": "skill",
-    "tags": ["skill", "reasoning", "cot", "chain of thought", "llm", "technique"]
+    "tags": ["chain-of-thought", "CoT", "zero-shot CoT", "few-shot CoT", "reasoning", "multi-step", "thought-generation", "production", "Wei 2022", "Kojima 2022"]
   }
 ]
