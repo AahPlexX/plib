@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prompts — plib</title>
+<link rel="stylesheet" href="/plib/assets/css/style.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="/plib/">plib</a>
+  <div class="search-wrap">
+    <label for="site-search" class="visually-hidden">Search prompts and skills</label>
+    <input id="site-search" type="search" placeholder="Search prompts &amp; skills…" autocomplete="off">
+    <ul id="search-results" class="search-results" hidden></ul>
+  </div>
+</header>
+
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  <ol id="breadcrumb-list"></ol>
+</nav>
+
+<main id="main-content">
+  <h1 class="page-title">Prompts</h1>
+  <p class="page-desc">A curated library of reusable prompt templates.</p>
+  <div id="filter-bar" class="filter-bar">
+    <label for="tag-filter" class="visually-hidden">Filter by tag</label>
+    <input id="tag-filter" type="search" placeholder="Filter by tag…" autocomplete="off">
+  </div>
+  <ul id="card-grid" class="card-grid" aria-live="polite"></ul>
+  <p id="empty-state" class="empty-state" hidden>No prompts match that tag.</p>
+</main>
+
+<footer class="site-footer">
+  <p>plib — static library, served via GitHub Pages.</p>
+</footer>
+
+<script src="/plib/assets/js/main.js" defer></script>
+<script>
+(function () {
+  const INDEX_URL = '/plib/data/search-index.json';
+
+  async function init() {
+    const grid = document.getElementById('card-grid');
+    const empty = document.getElementById('empty-state');
+    const tagInput = document.getElementById('tag-filter');
+    if (!grid) return;
+
+    let items = [];
+    try {
+      const res = await fetch(INDEX_URL);
+      if (!res.ok) throw new Error();
+      const all = await res.json();
+      items = all.filter(function (e) { return e.type === 'prompt'; });
+    } catch {
+      grid.innerHTML = '<li class="card-error">Could not load prompts.</li>';
+      return;
+    }
+
+    function render(list) {
+      if (!list.length) {
+        grid.innerHTML = '';
+        empty.hidden = false;
+        return;
+      }
+      empty.hidden = true;
+      grid.innerHTML = list.map(function (item) {
+        var tagMarkup = (item.tags || []).map(function (t) {
+          return '<span class="tag">' + t + '</span>';
+        }).join('');
+        return '<li class="card"><a href="' + item.url + '">' +
+          '<h2 class="card-title">' + item.title + '</h2>' +
+          '<div class="card-tags">' + tagMarkup + '</div>' +
+          '</a></li>';
+      }).join('');
+    }
+
+    render(items);
+
+    tagInput.addEventListener('input', function () {
+      var q = tagInput.value.trim().toLowerCase();
+      if (!q) { render(items); return; }
+      render(items.filter(function (item) {
+        return (item.tags || []).some(function (t) { return t.toLowerCase().includes(q); }) ||
+               item.title.toLowerCase().includes(q);
+      }));
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+}());
+</script>
+</body>
+</html>
