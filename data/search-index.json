@@ -1,0 +1,26 @@
+[
+  {
+    "title": "Prompts — Directory",
+    "url": "/plib/prompts/",
+    "type": "directory",
+    "tags": ["prompts", "directory", "browse"]
+  },
+  {
+    "title": "Skills — Directory",
+    "url": "/plib/.skill/",
+    "type": "directory",
+    "tags": ["skills", "skill", "directory", "browse"]
+  },
+  {
+    "title": "Intro to Prompting",
+    "url": "/plib/prompts/intro-to-prompting.html",
+    "type": "prompt",
+    "tags": ["prompt", "beginner", "introduction", "llm", "basics"]
+  },
+  {
+    "title": "Chain-of-Thought",
+    "url": "/plib/.skill/chain-of-thought.html",
+    "type": "skill",
+    "tags": ["skill", "reasoning", "cot", "chain of thought", "llm", "technique"]
+  }
+]
