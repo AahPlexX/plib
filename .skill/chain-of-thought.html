@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Chain-of-Thought — plib</title>
-<meta name="description" content="Chain-of-Thought (CoT) prompting: technique reference, example template, and application guidance for LLM reasoning tasks.">
+<title>Chain-of-Thought (CoT) — plib</title>
+<meta name="description" content="Production-grade Chain-of-Thought skill: Zero-Shot CoT and Few-Shot CoT templates with worked examples, model-scale requirements, and token-cost guidance. Grounded in Wei et al. 2022, Kojima et al. 2022.">
 <link rel="stylesheet" href="/plib/assets/css/style.css">
 </head>
 <body>
@@ -26,60 +26,222 @@
 
     <header class="detail-header">
       <p class="detail-type">Skill</p>
-      <h1 class="detail-title">Chain-of-Thought</h1>
-      <p class="detail-desc">A reasoning technique that instructs the model to produce explicit intermediate steps before arriving at a final answer. Substantially improves accuracy on multi-step arithmetic, logic, and planning tasks.</p>
+      <h1 class="detail-title">Chain-of-Thought (CoT)</h1>
+      <p class="detail-desc">A reasoning technique that instructs the model to produce explicit intermediate steps before its final answer. Documented to significantly improve accuracy on multi-step arithmetic, logic, planning, and code analysis tasks — but only under specific model-scale and task-type conditions. Two deployment variants are provided below: Zero-Shot CoT and Few-Shot CoT.</p>
       <div class="detail-meta">
         <div class="card-tags">
+          <span class="tag">chain-of-thought</span>
+          <span class="tag">zero-shot CoT</span>
+          <span class="tag">few-shot CoT</span>
           <span class="tag">reasoning</span>
-          <span class="tag">cot</span>
-          <span class="tag">llm</span>
-          <span class="tag">technique</span>
+          <span class="tag">multi-step</span>
+          <span class="tag">thought-generation</span>
+          <span class="tag">production</span>
         </div>
       </div>
     </header>
 
     <section class="detail-section">
-      <h2>When to use</h2>
-      <p>Apply Chain-of-Thought whenever the task requires multi-step reasoning that a single-pass answer would likely compress or skip: mathematical word problems, logical deduction chains, SQL query construction from ambiguous specs, differential diagnosis, or any planning task where intermediate correctness matters.</p>
+      <h2>Research basis &amp; prerequisites</h2>
+      <p>Chain-of-Thought prompting was formally introduced by Wei et al. (2022). The zero-shot variant (“Let’s think step by step”) was demonstrated by Kojima et al. (2022). Both papers establish a hard model-scale prerequisite: <strong>measurable accuracy gains from CoT occur only above approximately 100B parameters</strong>. Below that threshold — including Llama 3.1 8B, Mistral 7B, and most fine-tuned small models — CoT produces no improvement or actively degrades performance (Tianpan, 2026). On frontier API-tier models (GPT-4 class, Claude 3.5+, Gemini 1.5+), CoT is effective.</p>
+      <p>A 2025 study on Qwen2.5 models found that zero-shot CoT matches or beats few-shot CoT on arithmetic and logic tasks, because modern instruction-tuned models weight the instruction and test question more heavily than in-context exemplars. This means on frontier models, <strong>Zero-Shot CoT is the correct default</strong>; Few-Shot CoT is reserved for tasks where a correct reasoning-trace exemplar is unavailable to the model from pre-training (highly domain-specific notation, custom schemas).</p>
     </section>
 
     <section class="detail-section">
-      <h2>Skill template</h2>
+      <h2>When CoT applies (decision criteria)</h2>
+      <dl class="anatomy-list">
+        <dt>Task complexity</dt>
+        <dd>Multi-step arithmetic, logical deduction chains, SQL construction from ambiguous specs, planning with ordered dependencies. CoT shows no measurable gain on classification, extraction, or structured retrieval — use RISEN for those.</dd>
+        <dt>Model scale</dt>
+        <dd>100B+ parameters or frontier API-tier (GPT-4, Claude 3.5+, Gemini 1.5+). Below this threshold, use few-shot examples or explicit step instructions in the system prompt instead.</dd>
+        <dt>Error rate</dt>
+        <dd>CoT is worth the token cost when your zero-shot baseline error rate is high enough that a 10–15 percentage-point improvement clears your SLA. If baseline accuracy is already above 85–90%, CoT rarely justifies its overhead.</dd>
+        <dt>Latency budget</dt>
+        <dd>CoT inflates token output by 2–5×, adding multiple seconds of latency. If your SLA is sub-second, CoT is ineligible regardless of accuracy gains. Evaluate Chain-of-Draft (see below) as an alternative.</dd>
+      </dl>
+    </section>
+
+    <section class="detail-section">
+      <h2>Variant 1 — Zero-Shot CoT template</h2>
+      <p class="section-note">Use this on frontier models (GPT-4+, Claude 3.5+, Gemini 1.5+) for reasoning tasks when you have no worked exemplars available. The trigger phrase is the evidence-based formulation from Kojima et al. (2022).</p>
       <div class="prompt-block-wrap">
-        <button class="copy-btn" aria-label="Copy skill template to clipboard" data-target="prompt-block-1">Copy</button>
-        <pre id="prompt-block-1" class="prompt-block"><code>[Your standard role + context block here.]
+        <button class="copy-btn" aria-label="Copy Zero-Shot CoT template" data-target="zs-cot">Copy</button>
+        <pre id="zs-cot" class="prompt-block"><code>## Role
+You are a EXPERT_ROLE with expertise in DOMAIN.
 
 ## Task
-[State the problem or question to solve.]
+TASK_DESCRIPTION
 
-## Instructions
+## Reasoning instructions
 Think through this step by step before giving your final answer.
 For each step:
-1. State what you are about to determine.
-2. Show your working or reasoning.
-3. State the intermediate conclusion.
+  1. State what you are determining.
+  2. Show your reasoning or working.
+  3. State the intermediate conclusion.
 
-After all steps are complete, state your final answer clearly under the heading:
-**Final answer:**</code></pre>
+After completing all steps, write your final answer under the exact heading:
+
+**Final answer:**
+
+## Narrowing
+- Do NOT skip steps or compress multiple steps into one.
+- Do NOT state the final answer before the reasoning is complete.
+- Do NOT speculate beyond the information provided.
+
+---
+[PROBLEM BEGINS BELOW THIS LINE]
+
+INPUT_CONTENT</code></pre>
       </div>
     </section>
 
     <section class="detail-section">
-      <h2>How to apply it</h2>
-      <ol class="steps-list">
-        <li><strong>Anchor the role and context first.</strong> CoT does not replace a well-structured prompt — it augments it. Use the Intro to Prompting template as the base layer.</li>
-        <li><strong>Add the step-by-step instruction explicitly.</strong> The phrase “think step by step” is the minimal trigger. The full template above gives the model an output schema to follow, which produces cleaner, auditable reasoning.</li>
-        <li><strong>Ask for the final answer separately.</strong> The <code>Final answer:</code> heading creates a reliable extraction point so downstream parsing is not tangled with the reasoning trace.</li>
-        <li><strong>Verify intermediate steps, not just the conclusion.</strong> CoT’s value is in exposing the reasoning chain so you can identify exactly where a model goes wrong, not just that it did.</li>
-      </ol>
+      <h2>Variant 1 — Worked Zero-Shot CoT example</h2>
+      <p class="section-note">A fully-instantiated prompt and its expected output shape. The <strong>Final answer:</strong> heading creates a reliable extraction point for downstream parsing.</p>
+      <div class="prompt-block-wrap">
+        <button class="copy-btn" aria-label="Copy Zero-Shot CoT worked example" data-target="zs-cot-example">Copy</button>
+        <pre id="zs-cot-example" class="prompt-block"><code>## Role
+You are a senior data engineer with expertise in SQL and database performance.
+
+## Task
+Determine the correct SQL query to return each department’s name and the
+number of employees who joined after 2020-01-01, but only for departments
+that have more than 5 such employees.
+
+## Reasoning instructions
+Think through this step by step before giving your final answer.
+For each step:
+  1. State what you are determining.
+  2. Show your reasoning or working.
+  3. State the intermediate conclusion.
+
+After completing all steps, write your final answer under the exact heading:
+
+**Final answer:**
+
+## Narrowing
+- Do NOT skip steps or compress multiple steps into one.
+- Do NOT state the final answer before the reasoning is complete.
+- Do NOT speculate beyond the information provided.
+
+---
+[PROBLEM BEGINS BELOW THIS LINE]
+
+Schema:
+  departments(id INT, name VARCHAR)
+  employees(id INT, dept_id INT, hire_date DATE)
+
+---
+
+[EXPECTED OUTPUT SHAPE]
+
+Step 1: Determining what I need to count.
+I need to count employees per department where hire_date > 2020-01-01.
+Intermediate conclusion: I need a filtered aggregate.
+
+Step 2: Determining how to join the tables.
+Join employees to departments on dept_id = departments.id.
+Intermediate conclusion: INNER JOIN departments ON employees.dept_id = departments.id.
+
+Step 3: Applying the filter.
+hire_date > ‘2020-01-01’ goes in WHERE.
+Intermediate conclusion: WHERE e.hire_date > ‘2020-01-01’.
+
+Step 4: Applying the HAVING clause.
+I need departments with more than 5 qualifying employees, so after GROUP BY,
+HAVING COUNT(*) > 5.
+Intermediate conclusion: Use HAVING, not WHERE, because the condition applies
+to an aggregate.
+
+**Final answer:**
+SELECT d.name, COUNT(e.id) AS employee_count
+FROM employees e
+INNER JOIN departments d ON e.dept_id = d.id
+WHERE e.hire_date > ‘2020-01-01’
+GROUP BY d.id, d.name
+HAVING COUNT(e.id) > 5;</code></pre>
+      </div>
     </section>
 
     <section class="detail-section">
-      <h2>When NOT to use</h2>
+      <h2>Variant 2 — Few-Shot CoT template</h2>
+      <p class="section-note">Use when the reasoning pattern is highly domain-specific and unlikely to be in the model’s pre-training data, or when you are targeting a model below 100B parameters. Provide 2–3 exemplars only — more can introduce majority label bias (Schulhoff et al., 2025 §2.2.1.1).</p>
+      <div class="prompt-block-wrap">
+        <button class="copy-btn" aria-label="Copy Few-Shot CoT template" data-target="fs-cot">Copy</button>
+        <pre id="fs-cot" class="prompt-block"><code>## Role
+You are a EXPERT_ROLE with expertise in DOMAIN.
+
+## Task
+TASK_DESCRIPTION
+
+## Reasoning instructions
+Think through each problem step by step using the same pattern as the examples
+below. After completing all steps, write your final answer under the exact heading:
+
+**Final answer:**
+
+## Narrowing
+- Do NOT skip steps or compress multiple steps into one.
+- Do NOT state the final answer before the reasoning is complete.
+- Follow the exact structure of the examples: Step → Working → Intermediate conclusion.
+
+---
+[EXAMPLES BEGIN]
+
+Example 1:
+Q: EXEMPLAR_QUESTION_1
+
+Step 1: STEP_1_DESCRIPTION
+Working: STEP_1_WORKING
+Intermediate conclusion: STEP_1_CONCLUSION
+
+Step 2: STEP_2_DESCRIPTION
+Working: STEP_2_WORKING
+Intermediate conclusion: STEP_2_CONCLUSION
+
+**Final answer:** EXEMPLAR_ANSWER_1
+
+Example 2:
+Q: EXEMPLAR_QUESTION_2
+[... same structure ...]
+**Final answer:** EXEMPLAR_ANSWER_2
+
+[EXAMPLES END]
+---
+[PROBLEM BEGINS BELOW THIS LINE]
+
+Q: INPUT_CONTENT</code></pre>
+      </div>
+    </section>
+
+    <section class="detail-section">
+      <h2>Alternatives when CoT is too expensive</h2>
+      <ul class="steps-list">
+        <li><strong>Chain-of-Draft (CoD).</strong> Generates minimal, abbreviated intermediate reasoning annotations rather than verbose step-by-step prose. Achieves accuracy comparable to standard CoT while using 75–80% fewer tokens. Benchmark before committing to standard CoT in any cost-sensitive pipeline (reported in production decision literature, Tianpan 2026).</li>
+        <li><strong>Token-budget-aware reasoning.</strong> Instruct the model explicitly: “Reason in no more than N words before your final answer.” Studies show this cuts output tokens by 60–70% with negligible accuracy loss on reasoning tasks. Simpler to implement than structural CoT changes and often equally effective.</li>
+        <li><strong>Plan-and-Solve (PS+).</strong> Instructs the model to first generate a plan, then execute it step-by-step. Outperforms standard Zero-Shot CoT on arithmetic reasoning benchmarks (Wang et al., 2023 — ACL 2023). Structure: “Let’s first understand the problem and devise a plan, then carry out the plan step by step.”</li>
+      </ul>
+    </section>
+
+    <section class="detail-section">
+      <h2>When NOT to use CoT</h2>
       <ul class="caution-list">
-        <li><strong>Simple lookup or classification tasks.</strong> CoT adds token cost and latency with no accuracy benefit when the answer is a direct fact retrieval.</li>
-        <li><strong>Latency-sensitive pipelines.</strong> The extended output increases response time. For real-time UX, consider zero-shot or few-shot instead.</li>
-        <li><strong>Tasks that require concise output.</strong> The reasoning trace will dominate the response; if downstream consumers only need the final answer, add an extraction step or use structured outputs.</li>
+        <li><strong>Model scale below ~100B parameters.</strong> CoT shows no measurable accuracy gain and may degrade performance. Use few-shot examples or explicit system prompt instructions instead.</li>
+        <li><strong>Classification, extraction, or retrieval tasks.</strong> CoT’s gains over zero-shot are statistically indistinguishable on these task types. RISEN is the right tool.</li>
+        <li><strong>Latency-sensitive pipelines (sub-second SLA).</strong> CoT adds seconds; evaluate Chain-of-Draft or token-budget-aware reasoning first.</li>
+        <li><strong>High baseline accuracy (&gt;85–90%).</strong> The token cost multiplier (2–5×) is unlikely to be justified by the marginal accuracy improvement at this baseline level.</li>
+        <li><strong>When you cannot verify intermediate steps.</strong> If the reasoning trace cannot be audited (e.g., fully automated pipelines with no human review), CoT’s main advantage — exposing where the model’s reasoning fails — is unrealised. Use structured output prompting instead.</li>
+      </ul>
+    </section>
+
+    <section class="detail-section">
+      <h2>References</h2>
+      <ul class="ref-list">
+        <li>Wei, J. et al. (2022). <em>Chain-of-Thought Prompting Elicits Reasoning in Large Language Models.</em> NeurIPS 2022.</li>
+        <li>Kojima, T. et al. (2022). <em>Large Language Models are Zero-Shot Reasoners.</em> NeurIPS 2022.</li>
+        <li>Wang, L. et al. (2023). <em>Plan-and-Solve Prompting: Improving Zero-Shot Chain-of-Thought Reasoning by Large Language Models.</em> ACL 2023.</li>
+        <li>Schulhoff, S. et al. (2025). <em>The Prompt Report: A Systematic Survey of Prompting Techniques.</em> arXiv:2406.06608v6.</li>
+        <li>Tianpan, C. (2026). <em>Zero-Shot, Few-Shot, or Chain-of-Thought: A Production Decision Framework.</em> tianpan.co.</li>
       </ul>
     </section>
 
@@ -105,10 +267,7 @@ After all steps are complete, state your final answer clearly under the heading:
       navigator.clipboard.writeText(text).then(function () {
         btn.textContent = 'Copied!';
         btn.disabled = true;
-        setTimeout(function () {
-          btn.textContent = 'Copy';
-          btn.disabled = false;
-        }, 2000);
+        setTimeout(function () { btn.textContent = 'Copy'; btn.disabled = false; }, 2000);
       }).catch(function () {
         btn.textContent = 'Failed';
         setTimeout(function () { btn.textContent = 'Copy'; }, 2000);
