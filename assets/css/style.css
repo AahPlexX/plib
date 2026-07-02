@@ -1,0 +1,128 @@
+:root {
+  --gap: clamp(0.5rem, 1vw, 1rem);
+  --fs-base: clamp(0.95rem, 0.9rem + 0.2vw, 1.05rem);
+  --fs-h1: clamp(1.5rem, 1.2rem + 2vw, 2.5rem);
+  --fg: #1b1b1f;
+  --bg: #ffffff;
+  --accent: #2563eb;
+  --border: #e2e2e6;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: var(--fs-base);
+  color: var(--fg);
+  background: var(--bg);
+  line-height: 1.5;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.site-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap);
+  padding: var(--gap) clamp(1rem, 3vw, 2rem);
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--fg);
+  font-size: clamp(1.1rem, 1rem + 0.5vw, 1.4rem);
+}
+
+.search-wrap {
+  position: relative;
+  flex: 1 1 min(100%, 320px);
+  max-width: 420px;
+}
+
+#site-search {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  font-size: var(--fs-base);
+}
+
+.search-results {
+  position: absolute;
+  z-index: 10;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin: 0.25rem 0 0;
+  padding: 0;
+  list-style: none;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.search-results li a {
+  display: block;
+  padding: 0.5rem 0.75rem;
+  text-decoration: none;
+  color: var(--fg);
+}
+
+.search-results li a:hover,
+.search-results li a:focus {
+  background: #f2f4f8;
+}
+
+.breadcrumbs {
+  padding: 0.5rem clamp(1rem, 3vw, 2rem);
+  font-size: clamp(0.8rem, 0.75rem + 0.2vw, 0.9rem);
+  border-bottom: 1px solid var(--border);
+}
+
+#breadcrumb-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#breadcrumb-list li:not(:last-child)::after {
+  content: "/";
+  margin-left: 0.35rem;
+  color: #9a9aa2;
+}
+
+#breadcrumb-list a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+#breadcrumb-list a:hover { text-decoration: underline; }
+
+main {
+  padding: clamp(1rem, 3vw, 2rem);
+}
+
+.hub h1 { font-size: var(--fs-h1); margin-top: 0; }
+
+.site-footer {
+  padding: var(--gap) clamp(1rem, 3vw, 2rem);
+  border-top: 1px solid var(--border);
+  font-size: 0.85rem;
+  color: #6b6b74;
+}
