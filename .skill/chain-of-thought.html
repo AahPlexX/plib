@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chain-of-Thought — plib</title>
+<meta name="description" content="Chain-of-Thought (CoT) prompting: technique reference, example template, and application guidance for LLM reasoning tasks.">
+<link rel="stylesheet" href="/plib/assets/css/style.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="/plib/">plib</a>
+  <div class="search-wrap">
+    <label for="site-search" class="visually-hidden">Search prompts and skills</label>
+    <input id="site-search" type="search" placeholder="Search prompts &amp; skills…" autocomplete="off">
+    <ul id="search-results" class="search-results" hidden></ul>
+  </div>
+</header>
+
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  <ol id="breadcrumb-list"></ol>
+</nav>
+
+<main id="main-content">
+  <article class="detail-page">
+
+    <header class="detail-header">
+      <p class="detail-type">Skill</p>
+      <h1 class="detail-title">Chain-of-Thought</h1>
+      <p class="detail-desc">A reasoning technique that instructs the model to produce explicit intermediate steps before arriving at a final answer. Substantially improves accuracy on multi-step arithmetic, logic, and planning tasks.</p>
+      <div class="detail-meta">
+        <div class="card-tags">
+          <span class="tag">reasoning</span>
+          <span class="tag">cot</span>
+          <span class="tag">llm</span>
+          <span class="tag">technique</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="detail-section">
+      <h2>When to use</h2>
+      <p>Apply Chain-of-Thought whenever the task requires multi-step reasoning that a single-pass answer would likely compress or skip: mathematical word problems, logical deduction chains, SQL query construction from ambiguous specs, differential diagnosis, or any planning task where intermediate correctness matters.</p>
+    </section>
+
+    <section class="detail-section">
+      <h2>Skill template</h2>
+      <div class="prompt-block-wrap">
+        <button class="copy-btn" aria-label="Copy skill template to clipboard" data-target="prompt-block-1">Copy</button>
+        <pre id="prompt-block-1" class="prompt-block"><code>[Your standard role + context block here.]
+
+## Task
+[State the problem or question to solve.]
+
+## Instructions
+Think through this step by step before giving your final answer.
+For each step:
+1. State what you are about to determine.
+2. Show your working or reasoning.
+3. State the intermediate conclusion.
+
+After all steps are complete, state your final answer clearly under the heading:
+**Final answer:**</code></pre>
+      </div>
+    </section>
+
+    <section class="detail-section">
+      <h2>How to apply it</h2>
+      <ol class="steps-list">
+        <li><strong>Anchor the role and context first.</strong> CoT does not replace a well-structured prompt — it augments it. Use the Intro to Prompting template as the base layer.</li>
+        <li><strong>Add the step-by-step instruction explicitly.</strong> The phrase “think step by step” is the minimal trigger. The full template above gives the model an output schema to follow, which produces cleaner, auditable reasoning.</li>
+        <li><strong>Ask for the final answer separately.</strong> The <code>Final answer:</code> heading creates a reliable extraction point so downstream parsing is not tangled with the reasoning trace.</li>
+        <li><strong>Verify intermediate steps, not just the conclusion.</strong> CoT’s value is in exposing the reasoning chain so you can identify exactly where a model goes wrong, not just that it did.</li>
+      </ol>
+    </section>
+
+    <section class="detail-section">
+      <h2>When NOT to use</h2>
+      <ul class="caution-list">
+        <li><strong>Simple lookup or classification tasks.</strong> CoT adds token cost and latency with no accuracy benefit when the answer is a direct fact retrieval.</li>
+        <li><strong>Latency-sensitive pipelines.</strong> The extended output increases response time. For real-time UX, consider zero-shot or few-shot instead.</li>
+        <li><strong>Tasks that require concise output.</strong> The reasoning trace will dominate the response; if downstream consumers only need the final answer, add an extraction step or use structured outputs.</li>
+      </ul>
+    </section>
+
+    <nav class="detail-nav" aria-label="Directory navigation">
+      <a href="/plib/.skill/" class="detail-nav-link">← Back to Skills</a>
+    </nav>
+
+  </article>
+</main>
+
+<footer class="site-footer">
+  <p>plib — static library, served via GitHub Pages.</p>
+</footer>
+
+<script src="/plib/assets/js/main.js" defer></script>
+<script>
+(function () {
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var target = document.getElementById(btn.dataset.target);
+      if (!target) return;
+      var text = target.innerText || target.textContent;
+      navigator.clipboard.writeText(text).then(function () {
+        btn.textContent = 'Copied!';
+        btn.disabled = true;
+        setTimeout(function () {
+          btn.textContent = 'Copy';
+          btn.disabled = false;
+        }, 2000);
+      }).catch(function () {
+        btn.textContent = 'Failed';
+        setTimeout(function () { btn.textContent = 'Copy'; }, 2000);
+      });
+    });
+  });
+}());
+</script>
+</body>
+</html>
