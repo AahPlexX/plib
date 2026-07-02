@@ -1,85 +1,63 @@
-function buildBreadcrumbs() {
-  const list = document.getElementById("breadcrumb-list");
-  if (!list) return;
+(function () {
+  "use strict";
 
-  const base = "/plib/";
-  const path = window.location.pathname;
-  const trimmed = path.startsWith(base) ? path.slice(base.length) : path.replace(/^\//, "");
-  const segments = trimmed.split("/").filter(Boolean);
-
-  const crumbs = [{ label: "plib", href: base }];
-  let accumulated = base;
-  segments.forEach((segment, index) => {
-    accumulated += segment + "/";
-    const isLast = index === segments.length - 1;
-    const label = decodeURIComponent(segment.replace(/\.html$/, ""));
-    crumbs.push({ label, href: isLast ? null : accumulated });
-  });
-
-  list.innerHTML = crumbs
-    .map((crumb) =>
-      crumb.href
-        ? `<li><a href="${crumb.href}">${crumb.label}</a></li>`
-        : `<li aria-current="page">${crumb.label}</li>`
-    )
-    .join("");
-}
-
-function setupSearch() {
-  const input = document.getElementById("site-search");
-  const resultsList = document.getElementById("search-results");
-  if (!input || !resultsList) return;
-
-  let index = null;
-  let indexError = false;
-
-  async function loadIndex() {
-    if (index || indexError) return;
-    try {
-      const response = await fetch("/plib/data/search-index.json");
-      if (!response.ok) throw new Error("Search index not found");
-      index = await response.json();
-    } catch {
-      indexError = true;
-    }
+  function getArtifactText(targetId) {
+    var artifact = document.getElementById(targetId);
+    return artifact ? artifact.textContent.trim() + "\n" : "";
   }
 
-  function renderResults(matches) {
-    if (!matches.length) {
-      resultsList.hidden = true;
-      resultsList.innerHTML = "";
-      return;
-    }
-    resultsList.innerHTML = matches
-      .slice(0, 10)
-      .map((item) => `<li><a href="${item.url}">${item.title}</a></li>`)
-      .join("");
-    resultsList.hidden = false;
+  function showActionResult(button, message) {
+    var actions = button.closest(".artifact-actions");
+    var status = actions ? actions.querySelector(".action-status") : null;
+    var label = button.dataset.label || button.textContent;
+
+    button.dataset.label = label;
+    button.textContent = message;
+    button.disabled = true;
+    if (status) status.textContent = message;
+
+    window.setTimeout(function () {
+      button.textContent = label;
+      button.disabled = false;
+      if (status) status.textContent = "";
+    }, 1600);
   }
 
-  input.addEventListener("focus", loadIndex);
+  function downloadText(text, fileName) {
+    var blob = new Blob([text], { type: "text/markdown;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement("a");
 
-  input.addEventListener("input", () => {
-    const query = input.value.trim().toLowerCase();
-    if (!query || indexError || !index) {
-      renderResults([]);
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.setTimeout(function () { URL.revokeObjectURL(url); }, 0);
+  }
+
+  document.addEventListener("click", async function (event) {
+    var copyButton = event.target.closest("[data-copy-target]");
+    if (copyButton) {
+      var text = getArtifactText(copyButton.dataset.copyTarget);
+      if (!text || !navigator.clipboard) return;
+
+      try {
+        await navigator.clipboard.writeText(text);
+        showActionResult(copyButton, "Copied");
+      } catch {
+        showActionResult(copyButton, "Copy failed");
+      }
       return;
     }
-    const matches = index.filter((item) =>
-      item.title.toLowerCase().includes(query) ||
-      (item.tags || []).some((tag) => tag.toLowerCase().includes(query))
-    );
-    renderResults(matches);
-  });
 
-  document.addEventListener("click", (event) => {
-    if (!resultsList.contains(event.target) && event.target !== input) {
-      resultsList.hidden = true;
-    }
-  });
-}
+    var downloadButton = event.target.closest("[data-download-target]");
+    if (!downloadButton) return;
 
-document.addEventListener("DOMContentLoaded", () => {
-  buildBreadcrumbs();
-  setupSearch();
-});
+    var downloadTextValue = getArtifactText(downloadButton.dataset.downloadTarget);
+    if (!downloadTextValue) return;
+
+    downloadText(downloadTextValue, downloadButton.dataset.downloadName || "artifact.md");
+    showActionResult(downloadButton, "Downloaded");
+  });
+}());
