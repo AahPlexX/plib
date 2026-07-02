@@ -1,36 +1,48 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>plib — Prompt &amp; Skill Library</title>
-<link rel="stylesheet" href="assets/css/style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>plib — Prompt &amp; Skill Library</title>
+  <meta name="description" content="Copy-ready prompts and portable Agent Skills for real-world software work.">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/library.css">
 </head>
 <body>
-<header class="site-header">
-  <a class="brand" href="/plib/">plib</a>
-  <div class="search-wrap">
-    <label for="site-search" class="visually-hidden">Search prompts and skills</label>
-    <input id="site-search" type="search" placeholder="Search prompts &amp; skills…" autocomplete="off">
-    <ul id="search-results" class="search-results" hidden></ul>
-  </div>
-</header>
+  <header class="site-header">
+    <a class="brand" href="/plib/">plib</a>
+    <nav class="site-nav" aria-label="Primary navigation">
+      <a href="/plib/prompts/">Prompts</a>
+      <a href="/plib/.skill/">Skills</a>
+    </nav>
+  </header>
 
-<nav class="breadcrumbs" aria-label="Breadcrumb">
-  <ol id="breadcrumb-list"></ol>
-</nav>
+  <main id="main-content">
+    <section class="hero">
+      <h1>Copy-ready prompts and skills for software work.</h1>
+      <p>Each entry has a short use-case overview and one portable artifact. Copy it into a chat or download it for your project.</p>
+    </section>
 
-<main id="main-content">
-  <section class="hub">
-    <h1>Prompt &amp; Skill Library</h1>
-    <p>Browse the <a href="prompts/">prompt directory</a> or the <a href=".skill/">skill directory</a>.</p>
-  </section>
-</main>
+    <section class="library-grid" aria-label="Library sections">
+      <article class="library-card">
+        <a href="/plib/prompts/">
+          <p class="eyebrow">Prompts</p>
+          <h2>Reusable chat prompts</h2>
+          <p>Plain Markdown templates for focused work in an existing codebase.</p>
+        </a>
+      </article>
+      <article class="library-card">
+        <a href="/plib/.skill/">
+          <p class="eyebrow">Skills</p>
+          <h2>Portable agent skills</h2>
+          <p>Concise <code>SKILL.md</code> files for agent workflows that need a repeatable process.</p>
+        </a>
+      </article>
+    </section>
+  </main>
 
-<footer class="site-footer">
-  <p>plib — static library, served via GitHub Pages.</p>
-</footer>
-
-<script src="assets/js/main.js" defer></script>
+  <footer class="site-footer">
+    <p>plib — copy-ready prompts and skills.</p>
+  </footer>
 </body>
 </html>
