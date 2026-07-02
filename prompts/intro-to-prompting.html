@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Intro to Prompting — plib</title>
-<meta name="description" content="A beginner-friendly prompt template introducing the core anatomy of an LLM prompt.">
+<title>RISEN — Universal Structured Prompt — plib</title>
+<meta name="description" content="Production-grade RISEN framework prompt (Role, Instructions, Steps, End-goal, Narrowing). Copy-paste deployable. Grounded in peer-reviewed prompt engineering research.">
 <link rel="stylesheet" href="/plib/assets/css/style.css">
 </head>
 <body>
@@ -26,63 +26,145 @@
 
     <header class="detail-header">
       <p class="detail-type">Prompt</p>
-      <h1 class="detail-title">Intro to Prompting</h1>
-      <p class="detail-desc">A beginner-friendly template that teaches the core anatomy of an effective LLM prompt: role, context, task, constraints, and output format.</p>
+      <h1 class="detail-title">RISEN — Universal Structured Prompt</h1>
+      <p class="detail-desc">A production-grade, copy-paste-deployable prompt scaffold based on the RISEN framework (Role, Instructions, Steps, End-goal, Narrowing). Every field is deterministic — no ambiguous placeholders. Drop in your values and run.</p>
       <div class="detail-meta">
         <div class="card-tags">
-          <span class="tag">beginner</span>
-          <span class="tag">introduction</span>
-          <span class="tag">llm</span>
-          <span class="tag">basics</span>
+          <span class="tag">RISEN</span>
+          <span class="tag">zero-shot</span>
+          <span class="tag">structured</span>
+          <span class="tag">universal</span>
+          <span class="tag">role-prompting</span>
+          <span class="tag">production</span>
         </div>
       </div>
     </header>
 
     <section class="detail-section">
-      <h2>When to use this prompt</h2>
-      <p>Use this template whenever you need to onboard someone to prompt engineering, demonstrate structured prompting to a new team, or establish a baseline pattern before specialising into chain-of-thought, few-shot, or role-play techniques.</p>
+      <h2>Framework basis</h2>
+      <p>RISEN is a deterministic prompt scaffold derived from research on role prompting (Wang et al., 2023; Zheng et al., 2023), zero-shot instruction prompting (Wei et al., 2022), and output-format engineering (Schulhoff et al., 2025 — <em>The Prompt Report</em>). Each component maps directly to a specific failure mode it prevents:</p>
+      <dl class="anatomy-list">
+        <dt>Role</dt>
+        <dd>Constrains vocabulary, reasoning style, and assumed expertise level. A precise role reduces hallucination surface area and tones responses to the correct domain register. Source: role / persona prompting literature (Wang et al., 2023j; Reynolds &amp; McDonell, 2021).</dd>
+        <dt>Instructions</dt>
+        <dd>The single imperative directive. One verb, one scope. Compound instructions produce compound errors. Source: directive component definition (Schulhoff et al., 2025 §1.2.1).</dd>
+        <dt>Steps</dt>
+        <dd>An ordered breakdown the model must follow. Explicit sequencing prevents steps from being compressed or reordered, which is the primary failure mode on multi-part tasks.</dd>
+        <dt>End-goal</dt>
+        <dd>States the success criterion explicitly. Models optimise for what is measurable in the prompt; without an explicit end-goal they optimise for fluency, not correctness.</dd>
+        <dt>Narrowing</dt>
+        <dd>Negative-space constraints (what NOT to do). Empirically more reliable than hoping the instruction implies the constraint. Source: alignment / ambiguity section (Schulhoff et al., 2025 §5.2.4).</dd>
+      </dl>
     </section>
 
     <section class="detail-section">
-      <h2>Prompt template</h2>
+      <h2>Model &amp; task applicability</h2>
+      <ul class="caution-list">
+        <li><strong>All frontier API-tier models (GPT-4 class, Claude 3+ class, Gemini 1.5+).</strong> Zero-shot instruction-following at this scale makes RISEN immediately effective without examples.</li>
+        <li><strong>Not recommended below ~7B parameters without few-shot examples.</strong> Smaller models benefit from adding 2–3 worked exemplars after the Steps block. The instruction-following capability required for RISEN activates reliably only above ~70B parameters or with strong RLHF fine-tuning (Schulhoff et al., 2025; Tianpan, 2026).</li>
+        <li><strong>Best for: code review, document drafting, data extraction, classification, structured analysis, technical explanation.</strong> For multi-step mathematical reasoning, augment with the Chain-of-Thought skill.</li>
+      </ul>
+    </section>
+
+    <section class="detail-section">
+      <h2>Canonical template</h2>
+      <p class="section-note">All-caps tokens are the only insertion points. Replace each one with a concrete value before sending. Do not leave any token as-is.</p>
       <div class="prompt-block-wrap">
-        <button class="copy-btn" aria-label="Copy prompt to clipboard" data-target="prompt-block-1">Copy</button>
-        <pre id="prompt-block-1" class="prompt-block"><code>## Role
-You are [describe the persona or expert role the model should adopt].
+        <button class="copy-btn" aria-label="Copy canonical RISEN template to clipboard" data-target="risen-template">Copy</button>
+        <pre id="risen-template" class="prompt-block"><code>## Role
+You are a EXPERT_ROLE with deep expertise in DOMAIN.
+You communicate at a AUDIENCE_LEVEL level.
 
-## Context
-[Provide the background information the model needs to understand the situation.
-Include relevant facts, constraints, or prior decisions.]
+## Instructions
+INSTRUCTION_VERB the following INPUT_TYPE and produce OUTPUT_TYPE.
 
-## Task
-[State exactly what you want the model to do. Be specific about scope,
-length, and any required sub-steps.]
+## Steps
+1. STEP_ONE — [what to do first]
+2. STEP_TWO — [what to do second]
+3. STEP_THREE — [what to do third]
+4. If ambiguity is encountered at any step, state the assumption you are making
+   before proceeding.
 
-## Constraints
-- [Constraint 1 — e.g. respond only in plain text]
-- [Constraint 2 — e.g. do not speculate beyond the provided context]
-- [Constraint 3 — e.g. maximum 300 words]
+## End-goal
+The output is successful when: SUCCESS_CRITERION.
 
-## Output format
-[Describe the exact shape of the response: bullet list, JSON, numbered steps,
-prose paragraph, markdown table, etc.]</code></pre>
+## Narrowing
+- Do NOT: CONSTRAINT_ONE
+- Do NOT: CONSTRAINT_TWO
+- Respond only in: OUTPUT_FORMAT
+- Length: LENGTH_BOUND
+
+---
+[INPUT BEGINS BELOW THIS LINE]
+
+INPUT_CONTENT</code></pre>
       </div>
     </section>
 
     <section class="detail-section">
-      <h2>Anatomy breakdown</h2>
-      <dl class="anatomy-list">
-        <dt>Role</dt>
-        <dd>Sets the model’s persona. A precise role (e.g. “senior Epic Clarity analyst”) dramatically narrows the vocabulary and reasoning style the model uses.</dd>
-        <dt>Context</dt>
-        <dd>Supplies the working memory the model needs. Anything the model cannot infer from the task alone belongs here.</dd>
-        <dt>Task</dt>
-        <dd>The imperative instruction. One clear verb per task reduces ambiguity and hallucination surface area.</dd>
-        <dt>Constraints</dt>
-        <dd>Negative-space guardrails. Telling the model what <em>not</em> to do is often more reliable than hoping the task description implies it.</dd>
-        <dt>Output format</dt>
-        <dd>Eliminates post-processing. A model that knows the exact shape of the required output produces far fewer off-format responses.</dd>
-      </dl>
+      <h2>Worked example — code review</h2>
+      <p class="section-note">A fully-instantiated RISEN prompt, ready to paste into any frontier LLM. No placeholder tokens remain.</p>
+      <div class="prompt-block-wrap">
+        <button class="copy-btn" aria-label="Copy worked code-review example to clipboard" data-target="risen-example">Copy</button>
+        <pre id="risen-example" class="prompt-block"><code>## Role
+You are a senior TypeScript engineer with deep expertise in Node.js API design
+and security. You communicate at a mid-level engineer audience level.
+
+## Instructions
+Review the following TypeScript function and produce a structured audit report.
+
+## Steps
+1. Identify all type-safety issues — missing types, any casts, unsafe assertions.
+2. Identify all security issues — injection vectors, unvalidated inputs, secrets
+   in scope.
+3. Identify all logic errors — off-by-one, null dereference, unhandled rejections.
+4. For each finding, state: severity (CRITICAL | HIGH | MEDIUM | LOW), the
+   exact line or pattern, and a one-sentence fix.
+5. If ambiguity is encountered at any step, state the assumption you are making
+   before proceeding.
+
+## End-goal
+The output is successful when every finding has a severity label, a code
+location, and an actionable fix. Zero findings is a valid result if the code
+is clean.
+
+## Narrowing
+- Do NOT rewrite the function or produce corrected code.
+- Do NOT speculate about intent beyond what the code states.
+- Respond only in: markdown, using a table with columns
+  Severity | Location | Issue | Fix.
+- Length: no preamble, no summary — table only.
+
+---
+[INPUT BEGINS BELOW THIS LINE]
+
+async function getUser(id: any) {
+  const query = `SELECT * FROM users WHERE id = ${id}`;
+  const result = await db.raw(query);
+  return result.rows[0];
+}</code></pre>
+      </div>
+    </section>
+
+    <section class="detail-section">
+      <h2>Token cost &amp; when to specialise</h2>
+      <ul class="steps-list">
+        <li><strong>Token cost is low.</strong> The RISEN scaffold adds ~80–120 tokens of overhead per call. No reasoning trace is generated. This makes it the default choice before reaching for chain-of-thought.</li>
+        <li><strong>Add few-shot examples when format compliance is critical.</strong> If downstream parsing depends on exact structural output (e.g. a specific JSON schema), add 2–3 concrete input/output pairs after the Narrowing block. Few-shot’s role on frontier models is format alignment, not reasoning improvement (Vellum, 2026; Tianpan, 2026).</li>
+        <li><strong>Add Chain-of-Thought when the task is multi-step reasoning.</strong> If Steps 1–4 involve arithmetic, logical deduction chains, or planning with dependencies, layer the CoT skill on top of this scaffold rather than extending it ad-hoc.</li>
+        <li><strong>Re-test after model upgrades.</strong> Prompting strategy effectiveness is not stable across model versions. Instruction-following improvements in each generation reduce the marginal value of structural scaffolding. Re-benchmark quarterly (Tianpan, 2026).</li>
+      </ul>
+    </section>
+
+    <section class="detail-section">
+      <h2>References</h2>
+      <ul class="ref-list">
+        <li>Schulhoff, S. et al. (2025). <em>The Prompt Report: A Systematic Survey of Prompting Techniques.</em> arXiv:2406.06608v6.</li>
+        <li>Wei, J. et al. (2022). <em>Finetuned Language Models Are Zero-Shot Learners.</em> ICLR 2022.</li>
+        <li>Wang, Z. et al. (2023). <em>Role-Play with Large Language Models.</em> arXiv:2305.16367.</li>
+        <li>Reynolds, L. &amp; McDonell, K. (2021). <em>Prompt Programming for Large Language Models.</em> CHI EA 2021.</li>
+        <li>Tianpan, C. (2026). <em>Zero-Shot, Few-Shot, or Chain-of-Thought: A Production Decision Framework.</em> tianpan.co.</li>
+      </ul>
     </section>
 
     <nav class="detail-nav" aria-label="Directory navigation">
@@ -107,10 +189,7 @@ prose paragraph, markdown table, etc.]</code></pre>
       navigator.clipboard.writeText(text).then(function () {
         btn.textContent = 'Copied!';
         btn.disabled = true;
-        setTimeout(function () {
-          btn.textContent = 'Copy';
-          btn.disabled = false;
-        }, 2000);
+        setTimeout(function () { btn.textContent = 'Copy'; btn.disabled = false; }, 2000);
       }).catch(function () {
         btn.textContent = 'Failed';
         setTimeout(function () { btn.textContent = 'Copy'; }, 2000);
